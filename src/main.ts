@@ -1,9 +1,10 @@
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
 import * as fs from 'fs';
+
+import { AppModule } from './app.module';
 import { useRequestLogging } from './middleware/logger.middleware';
-import { Logger, ValidationPipe } from '@nestjs/common';
 
 // This allows TypeScript to detect our global value
 declare global {
@@ -35,13 +36,13 @@ async function bootstrap() {
     }
 
     app.enableCors();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
 
     await app.listen(process.env.PORT, () => {
-      if (process.env.NODE_ENV !== 'production') {
-          Logger.log(`App listen on http://localhost:${process.env.PORT}`);
-          Logger.log(`Swagger listen on http://localhost:${process.env.PORT}/docs`);
-      }
-  });
+        if (process.env.NODE_ENV !== 'production') {
+            Logger.log(`App listen on http://localhost:${process.env.PORT}`);
+            Logger.log(`Swagger listen on http://localhost:${process.env.PORT}/docs`);
+        }
+    });
 }
 bootstrap();

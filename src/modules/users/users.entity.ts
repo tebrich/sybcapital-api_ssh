@@ -11,7 +11,9 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
+
 import { PasswordRecover } from '../auth/password-recover.entity';
+import { Post } from '../posts/posts.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -52,6 +54,9 @@ export class User extends BaseEntity {
     @OneToMany(() => PasswordRecover, (passwordRecover) => passwordRecover.user, { onDelete: 'CASCADE', cascade: true })
     passwordRecovers: PasswordRecover[];
 
+    @OneToMany(() => Post, (post) => post.author, { onDelete: 'SET NULL', cascade: true })
+    posts: Post[];
+
     @BeforeInsert()
     createFullName() {
         this.fullName = `${this.firstName} ${this.lastName}`;
@@ -67,6 +72,6 @@ export class User extends BaseEntity {
     }
 
     async validatePassword(password: string): Promise<boolean> {
-       return await bcrypt.compare(password, this.password);
+        return await bcrypt.compare(password, this.password);
     }
 }

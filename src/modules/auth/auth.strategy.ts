@@ -12,7 +12,7 @@ export class AuthStrategy extends PassportStrategy(Strategy) {
     constructor(
         @InjectRepository(AuthRepository)
         private authRepository: AuthRepository,
-         configService: ConfigService,
+        configService: ConfigService,
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -23,7 +23,7 @@ export class AuthStrategy extends PassportStrategy(Strategy) {
 
     async validate(payload: JwtPayload) {
         const { email } = payload;
-        const user = await this.authRepository.findOneBy({email});
+        const user = await this.authRepository.findOneBy({ email });
 
         if (!user) {
             throw new UnauthorizedException();
