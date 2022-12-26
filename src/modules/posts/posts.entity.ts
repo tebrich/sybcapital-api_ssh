@@ -39,7 +39,11 @@ export class Post extends BaseEntity {
     @ManyToOne(() => User, (user) => user.posts, { eager: false })
     author: User;
 
-    @ManyToMany(() => Category, { eager: false, cascade: ['soft-remove', 'remove'], onDelete: 'RESTRICT' })
+    @ManyToMany(() => Category, (category) => category.posts, {
+        eager: false,
+        cascade: ['soft-remove', 'remove'],
+        onDelete: 'RESTRICT',
+    })
     @JoinTable({ name: 'post_categories' })
     categories: Category[];
 

@@ -1,6 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class TagsFilter {
+export class CategoriesFilterDto {
     @IsOptional()
     @IsString()
     name?: string;
@@ -15,7 +15,7 @@ export class TagsFilter {
 
     @IsOptional()
     @IsBoolean()
-    inlcudeDeleted?: boolean;
+    includeDeleted?: boolean;
 
     @IsOptional()
     @IsBoolean()

@@ -5,11 +5,17 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
+    ManyToMany,
     PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn,
 } from 'typeorm';
 
+import * as Slugify from '../../utils/slugify';
+import { Post } from '../posts/posts.entity';
+
 @Entity()
+@Unique(['slug'])
 export class Category extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
@@ -23,6 +29,9 @@ export class Category extends BaseEntity {
     @Column()
     description: string;
 
+    @ManyToMany(() => Post, (post) => post.categories)
+    posts: Post[];
+
     @CreateDateColumn()
     createdAt: Date;
 
@@ -34,11 +43,6 @@ export class Category extends BaseEntity {
 
     @BeforeInsert()
     slugify() {
-        this.slug = this.name
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-zA-Z0-9 ]/g, '')
-            .replace(/\s/g, '-')
-            .toLowerCase();
+        this.slug = Slugify.slugify(this.name);
     }
 }

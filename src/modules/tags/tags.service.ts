@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 
 import { slugify } from '../../utils/slugify';
 import { CreateTagDto, UpdateTagDto } from './dto/tags.dto';
-import { TagsFilter } from './dto/tags-filter';
+import { TagsFilterDto } from './dto/tags-filter.dto';
 import { Tag } from './tags.entity';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class TagsService {
         private readonly tagRepository: Repository<Tag>,
     ) {}
 
-    async findAll(tagsFilter: TagsFilter): Promise<[Tag[], number]> {
+    async findAll(tagsFilter: TagsFilterDto): Promise<[Tag[], number]> {
         try {
             const query = this.tagRepository.createQueryBuilder('tag');
 
@@ -45,13 +45,6 @@ export class TagsService {
 
             if (inlcudePost) {
                 tag.innerJoinAndSelect('tag.posts', 'post');
-            }
-
-            if (!tag) {
-                throw new BadRequestException(
-                    { message: `Tag with id ${id} not found` },
-                    `Tag with id ${id} not found`,
-                );
             }
 
             return await tag.getOne();

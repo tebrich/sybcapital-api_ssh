@@ -7,6 +7,7 @@ import {
     Entity,
     ManyToMany,
     PrimaryGeneratedColumn,
+    Unique,
     UpdateDateColumn,
 } from 'typeorm';
 
@@ -14,6 +15,7 @@ import * as Slugify from '../../utils/slugify';
 import { Post } from '../posts/posts.entity';
 
 @Entity()
+@Unique(['slug'])
 export class Tag extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;

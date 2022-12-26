@@ -3,7 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 
 import { CreateTagDto } from './dto/tags.dto';
-import { TagsFilter } from './dto/tags-filter';
+import { TagsFilterDto } from './dto/tags-filter.dto';
 import { TagsService } from './tags.service';
 
 @ApiTags('Tags')
@@ -15,7 +15,7 @@ export class TagsController {
     @Get()
     async findAll(
         @Query()
-        tagsFilter: TagsFilter,
+        tagsFilter: TagsFilterDto,
     ) {
         return await this.tagsService.findAll(tagsFilter);
     }
