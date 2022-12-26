@@ -1,0 +1,49 @@
+version: "3.7"
+
+services:
+  sybcapital-api:
+    container_name: sybcapital-api
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 3000:3000
+    command: yarn start:dev
+    env_file:
+      - .env
+    depends_on:
+      - database-sybcapital
+    links:
+      - database-sybcapital:database-sybcapital
+    networks:
+      - webnet
+      
+  database-sybcapital:
+   container_name: database-sybcapital
+   image: mysql:5.7
+   env_file:
+     - .env
+   volumes:
+     - database-data-sybcapital:/var/lib/postgresql/data/ # persist data even if container shuts down
+   ports:
+     - 3306:3306
+   networks:
+     - webnet
+     
+ 
+  redis-sybcapital:
+    container_name: redis-sybcapital
+    image: redis:5
+    # command: redis-server --requirepass yourpassword
+    networks:
+      - webnet
+    ports:
+      - 6379:6379
+
+volumes:
+  database-data-sybcapital: # named volume for easier docker-compose management
+networks:
+  webnet:
+    name: webnet
