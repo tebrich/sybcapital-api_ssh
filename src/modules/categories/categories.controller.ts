@@ -1,9 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
-import { CategoriesService } from './categories.service';
-import { CategoriesFilterDto } from './dto/categories-filter.dto';
-import { CategoriesDto, UpdateCategoriesDto } from './dto/categories.dto';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
+import { CategoriesService } from './categories.service';
+import { CategoriesDto, UpdateCategoriesDto } from './dto/categories.dto';
+import { CategoriesFilterDto } from './dto/categories-filter.dto';
+
+@UseGuards(AuthGuard())
 @Controller('categories')
+@ApiTags('Categories')
 export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) {}
 
