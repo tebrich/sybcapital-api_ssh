@@ -14,6 +14,7 @@ import {
 } from 'typeorm';
 
 import { Category } from '../categories/categories.entity';
+import { Files } from '../files/files.entity';
 import { Tag } from '../tags/tags.entity';
 import { User } from '../users/users.entity';
 import { PostStatus } from './posts-status.enum';
@@ -54,6 +55,10 @@ export class Post extends BaseEntity {
     })
     @JoinTable({ name: 'post_tags' })
     tags: Tag[];
+
+    @ManyToMany(() => Files, { eager: true, cascade: ['soft-remove', 'remove'], onDelete: 'RESTRICT' })
+    @JoinTable({ name: 'post_files' })
+    files: Files[];
 
     @Column({ type: 'enum', enum: PostStatus, default: PostStatus.BORRADOR })
     status: PostStatus;

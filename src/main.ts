@@ -5,6 +5,7 @@ import * as fs from 'fs';
 
 import { AppModule } from './app.module';
 import { useRequestLogging } from './middleware/logger.middleware';
+import { json } from 'express';
 
 // This allows TypeScript to detect our global value
 declare global {
@@ -37,6 +38,7 @@ async function bootstrap() {
 
     app.enableCors();
     app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
+    app.use(json({ limit: '50mb' }));
 
     await app.listen(process.env.PORT, () => {
         if (process.env.NODE_ENV !== 'production') {

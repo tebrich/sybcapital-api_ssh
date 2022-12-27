@@ -41,4 +41,9 @@ export class PostsController {
     async delete(@Param('id', ParseIntPipe) id: number) {
         return await this.postsService.delete(id);
     }
+
+    @Post('/exported-posts/recover')
+    async uploadExportedPosts(@Body() exportedPosts: any) {
+        return await this.postsService.uploadExportedPosts(exportedPosts);
+    }
 }

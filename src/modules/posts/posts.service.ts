@@ -7,6 +7,10 @@ import { PostDto, UpdatePostDto } from './dto/posts.dto';
 import { CategoriesService } from '../categories/categories.service';
 import { TagsService } from '../tags/tags.service';
 import { UsersService } from '../users/users.service';
+import { PostStatus } from './posts-status.enum';
+import * as dayjs from 'dayjs';
+import { FilesService } from '../files/files.service';
+import fetch from 'node-fetch';
 
 @Injectable()
 export class PostsService {
@@ -16,6 +20,7 @@ export class PostsService {
         private readonly categoriesService: CategoriesService,
         private readonly tagsService: TagsService,
         private readonly usersService: UsersService,
+        private readonly filesService: FilesService,
     ) {}
 
     async getAll(postFilterDto: PostsFilterDto): Promise<[Post[], number]> {
@@ -42,6 +47,7 @@ export class PostsService {
             query.leftJoinAndSelect('post.author', 'author');
             query.leftJoinAndSelect('post.categories', 'categories');
             query.leftJoinAndSelect('post.tags', 'tags');
+            query.leftJoinAndSelect('post.files', 'files');
 
             query.limit(limit);
             query.take(limit * page);
@@ -56,7 +62,7 @@ export class PostsService {
         try {
             return await this.postsRepository.findOne({
                 where: { id },
-                relations: ['author', 'categories', 'tags'],
+                relations: ['author', 'categories', 'tags', 'files'],
                 select: ['id', 'title', 'slug', 'excerpt', 'content', 'status', 'createdAt', 'updatedAt'],
             });
         } catch (err) {
@@ -156,4 +162,66 @@ export class PostsService {
             throw new InternalServerErrorException(err.message, err.stack);
         }
     }
+
+    async uploadExportedPosts(exportedPosts: ExportedPosts[]): Promise<any> {
+        let i = 0;
+
+        const author = await this.usersService.findOneById(1);
+        for (const exportedPost of exportedPosts) {
+            const {
+                Title,
+                Status,
+                Content,
+                Excerpt,
+                Date: date,
+                Etiquetas: tags,
+                Categorías: categories,
+                'Image URL': img,
+            } = exportedPost;
+            if (Status === 'publish') {
+                const categoriesIds = await this.categoriesService.getCategoriesList(categories.split(','));
+
+                const post = new Post();
+
+                post.title = Title;
+                post.excerpt = Excerpt;
+                post.content = Content;
+                post.status = PostStatus.PUBLICADO;
+                post.createdAt = dayjs(date).toDate();
+                post.updatedAt = dayjs(date).toDate();
+                post.author = author;
+                post.categories = categoriesIds;
+                if (tags) {
+                    const tagsIds = await this.tagsService.getTagsList(tags.split(','));
+                    post.tags = tagsIds;
+                }
+                if (img) {
+                    const imageData = await fetch(img).then((r) => r.buffer());
+                    const imageUrl = await this.filesService.uploadImage(imageData, 'images', true);
+                    const image = await this.filesService.getFilesByArrayId([imageUrl.id]);
+                    post.files = image;
+                }
+
+                await post.save();
+            }
+            if (i < 10) {
+                this.delay(1000);
+            }
+            i++;
+        }
+    }
+    delay(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+}
+
+class ExportedPosts {
+    Title: string;
+    Content: string;
+    Excerpt: string;
+    Date: Date;
+    'Image URL': string;
+    'Categorías': string;
+    'Etiquetas': string;
+    'Status': string;
 }

@@ -42,8 +42,8 @@ export class FilesService {
         file: any,
         folderName: string,
         feature: boolean,
+        fileExtension = '.jpg',
         fileName?: string,
-        fileExtension?: string,
     ): Promise<{ id: number; filePath: string }> {
         if (file === undefined) throw new BadRequestException('File undefined');
 
