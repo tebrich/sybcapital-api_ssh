@@ -33,7 +33,7 @@ export class Post extends BaseEntity {
     @Column()
     excerpt: string;
 
-    @Column({ type: 'mediumtext' })
+    @Column({ type: 'mediumtext', select: false })
     content: string;
 
     @ManyToOne(() => User, (user) => user.posts, { eager: false })

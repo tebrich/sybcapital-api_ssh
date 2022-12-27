@@ -122,7 +122,7 @@ export class CategoriesService {
                 let categoryToReturn = await this.categoriesRepository.findOneBy({ name: category });
 
                 if (!categoryToReturn) {
-                    categoryToReturn = await this.create({ name: category });
+                    categoryToReturn = await this.create({ name: category, description: '' });
                 }
 
                 categoriesToReturn.push(categoryToReturn);

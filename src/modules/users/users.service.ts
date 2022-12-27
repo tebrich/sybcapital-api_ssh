@@ -36,9 +36,7 @@ export class UsersService {
                 lastName,
                 phoneNumber,
             });
-            const user = await this.userRepository.save(newUser);
-
-            return user;
+            return await this.userRepository.save(newUser);
         } catch (error) {
             this.logger.error(`New error createUser ${error}`);
             if (error.errno === 1062) {
