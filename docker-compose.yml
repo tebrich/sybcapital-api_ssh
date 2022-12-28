@@ -19,10 +19,10 @@ services:
       - database-sybcapital:database-sybcapital
     networks:
       - webnet
-      
+
   database-sybcapital:
    container_name: database-sybcapital
-   image: mysql:5.7
+   image: mariadb:10.4
    env_file:
      - .env
    volumes:
@@ -31,8 +31,8 @@ services:
      - 3306:3306
    networks:
      - webnet
-     
- 
+
+
   redis-sybcapital:
     container_name: redis-sybcapital
     image: redis:5
