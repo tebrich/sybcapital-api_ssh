@@ -63,6 +63,20 @@ export class Post extends BaseEntity {
     @Column({ type: 'enum', enum: PostStatus, default: PostStatus.BORRADOR })
     status: PostStatus;
 
+    @Column({
+        type: 'json',
+        default: JSON.stringify({
+            facebook: 0,
+            twitter: 0,
+            linkedin: 0,
+            whatsapp: 0,
+            telegram: 0,
+            email: 0,
+            pinterest: 0,
+        }),
+    })
+    shared: string;
+
     @CreateDateColumn()
     createdAt: Date;
 

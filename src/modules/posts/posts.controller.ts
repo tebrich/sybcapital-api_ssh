@@ -6,7 +6,6 @@ import { PostDto, UpdatePostDto } from './dto/posts.dto';
 import { PostsFilterDto } from './dto/posts-filter.dto';
 import { PostsService } from './posts.service';
 
-@UseGuards(AuthGuard())
 @Controller('posts')
 @ApiTags('Posts')
 export class PostsController {
@@ -27,21 +26,25 @@ export class PostsController {
         return await this.postsService.getOneBySlug(slug);
     }
 
+    @UseGuards(AuthGuard())
     @Post()
     async create(@Body() postDto: PostDto) {
         return await this.postsService.create(postDto);
     }
 
+    @UseGuards(AuthGuard())
     @Patch('/:id')
     async update(@Param('id', ParseIntPipe) id: number, @Body() updatePostDto: UpdatePostDto) {
         return await this.postsService.update(id, updatePostDto);
     }
 
+    @UseGuards(AuthGuard())
     @Delete('/:id')
     async delete(@Param('id', ParseIntPipe) id: number) {
         return await this.postsService.delete(id);
     }
 
+    @UseGuards(AuthGuard())
     @Post('/exported-posts/recover')
     async uploadExportedPosts(@Body() exportedPosts: any) {
         return await this.postsService.uploadExportedPosts(exportedPosts);

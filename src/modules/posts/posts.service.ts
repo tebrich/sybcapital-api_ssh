@@ -25,7 +25,7 @@ export class PostsService {
 
     async getAll(postFilterDto: PostsFilterDto): Promise<[Post[], number]> {
         try {
-            const { title, authorId, tags, categories, limit, page } = postFilterDto;
+            const { title, authorId, tags, categories } = postFilterDto;
             const query = this.postsRepository.createQueryBuilder('post');
 
             if (title) {
@@ -44,13 +44,27 @@ export class PostsService {
                 query.andWhere('post.categories IN (:categories)', { categories });
             }
 
+            query.select([
+                'post.id',
+                'post.title',
+                'post.slug',
+                'post.excerpt',
+                'post.content',
+                'post.status',
+                'post.createdAt',
+                'post.updatedAt',
+                'post.shared',
+            ]);
+
             query.leftJoinAndSelect('post.author', 'author');
             query.leftJoinAndSelect('post.categories', 'categories');
             query.leftJoinAndSelect('post.tags', 'tags');
             query.leftJoinAndSelect('post.files', 'files');
 
-            query.limit(limit);
-            query.take(limit * page);
+            // query.limit(limit);
+            // query.take(limit * page);
+
+            query.orderBy('post.createdAt', 'DESC');
 
             return await query.getManyAndCount();
         } catch (err) {
@@ -63,7 +77,7 @@ export class PostsService {
             return await this.postsRepository.findOne({
                 where: { id },
                 relations: ['author', 'categories', 'tags', 'files'],
-                select: ['id', 'title', 'slug', 'excerpt', 'content', 'status', 'createdAt', 'updatedAt'],
+                select: ['id', 'title', 'slug', 'excerpt', 'content', 'status', 'createdAt', 'updatedAt', 'shared'],
             });
         } catch (err) {
             throw new BadRequestException(err.message, err.stack);
@@ -75,7 +89,7 @@ export class PostsService {
             return await this.postsRepository.findOne({
                 where: { slug },
                 relations: ['author', 'categories', 'tags'],
-                select: ['id', 'title', 'slug', 'excerpt', 'content', 'status', 'createdAt', 'updatedAt'],
+                select: ['id', 'title', 'slug', 'excerpt', 'content', 'status', 'createdAt', 'updatedAt', 'shared'],
             });
         } catch (err) {
             throw new BadRequestException(err.message, err.stack);
@@ -164,7 +178,7 @@ export class PostsService {
     }
 
     async uploadExportedPosts(exportedPosts: ExportedPosts[]): Promise<any> {
-        let i = 0;
+        let i = 260;
 
         const author = await this.usersService.findOneById(1);
         for (const exportedPost of exportedPosts) {
@@ -183,7 +197,7 @@ export class PostsService {
 
                 const post = new Post();
 
-                post.title = Title;
+                post.title = Title.replace('\xFFFD', '');
                 post.excerpt = Excerpt;
                 post.content = Content;
                 post.status = PostStatus.PUBLICADO;
@@ -196,11 +210,20 @@ export class PostsService {
                     post.tags = tagsIds;
                 }
                 if (img) {
-                    const imageData = await fetch(img).then((r) => r.buffer());
-                    const imageUrl = await this.filesService.uploadImage(imageData, 'images', true);
-                    const image = await this.filesService.getFilesByArrayId([imageUrl.id]);
-                    post.files = image;
+                    const imageData = await fetch(img)
+                        .then((r) => {
+                            if (r.ok) {
+                                return r.buffer();
+                            }
+                        })
+                        .catch((e) => console.log(`Error on create file from post ${Title}`, e));
+                    if (imageData) {
+                        const imageUrl = await this.filesService.uploadImage(imageData, 'images', true);
+                        const image = await this.filesService.getFilesByArrayId([imageUrl.id]);
+                        post.files = image;
+                    }
                 }
+                console.log(`Post ${Title} created ${i}`);
 
                 await post.save();
             }
