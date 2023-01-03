@@ -7,7 +7,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { compareSync } from 'bcrypt';
+import { compareSync } from 'bcryptjs';
 import { Repository } from 'typeorm';
 
 import { CreateUserDto } from './dto/users.dto';

@@ -5,7 +5,7 @@ services:
     container_name: sybcapital-api
     build:
       context: .
-      dockerfile: Dockerfile.local
+      dockerfile: Dockerfile
     volumes:
       - .:/usr/src/app
     ports:
