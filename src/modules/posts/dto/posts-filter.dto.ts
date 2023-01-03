@@ -24,4 +24,8 @@ export class PostsFilterDto {
     @IsOptional()
     @IsArray()
     categories?: number[];
+
+    @IsOptional()
+    @IsString()
+    status?: string;
 }

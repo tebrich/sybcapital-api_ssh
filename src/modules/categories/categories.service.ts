@@ -32,8 +32,8 @@ export class CategoriesService {
                 query.leftJoinAndSelect('category.posts', 'post');
             }
 
-            query.limit(limit);
-            query.take(page * limit);
+            query.take(limit);
+            query.skip((page - 1) * limit);
 
             return await query.getManyAndCount();
         } catch (err) {

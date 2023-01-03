@@ -22,8 +22,8 @@ export class TagsService {
                 query.andWhere('tag.name LIKE :name', { name: `%${tagsFilter.name}%` });
             }
 
-            query.limit(tagsFilter.limit);
-            query.take(tagsFilter.limit * tagsFilter.page);
+            query.take(tagsFilter.limit);
+            query.skip(tagsFilter.limit * (tagsFilter.page - 1));
 
             if (tagsFilter.inlcudeDeleted) {
                 query.withDeleted();

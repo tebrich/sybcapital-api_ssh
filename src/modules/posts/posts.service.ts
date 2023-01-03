@@ -25,7 +25,7 @@ export class PostsService {
 
     async getAll(postFilterDto: PostsFilterDto): Promise<[Post[], number]> {
         try {
-            const { title, authorId, tags, categories } = postFilterDto;
+            const { title, authorId, tags, categories, limit, page, status } = postFilterDto;
             const query = this.postsRepository.createQueryBuilder('post');
 
             if (title) {
@@ -42,6 +42,10 @@ export class PostsService {
 
             if (categories) {
                 query.andWhere('post.categories IN (:categories)', { categories });
+            }
+
+            if (status) {
+                query.andWhere('post.status = :status', { status });
             }
 
             query.select([
@@ -61,8 +65,8 @@ export class PostsService {
             query.leftJoinAndSelect('post.tags', 'tags');
             query.leftJoinAndSelect('post.files', 'files');
 
-            // query.limit(limit);
-            // query.take(limit * page);
+            query.take(limit);
+            query.skip(limit * (page - 1));
 
             query.orderBy('post.createdAt', 'DESC');
 
