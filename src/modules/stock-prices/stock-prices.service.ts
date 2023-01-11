@@ -73,13 +73,38 @@ export class StockPricesService {
                     params: { exchange, limit },
                 });
 
-                await this.cacheManager.set(`${this.marketsMovers}_${exchange}`, data, this.ttl);
+                const symbolsList = data.map((item) => item.symbol);
+
+                const quotes = await this.getStockQuotesBySymbols(symbolsList, exchange);
+
+                const result = data.map((item, index) => {
+                    return { ...item, stockPrice: quotes.find((q) => q.symbol === item.symbol) || null };
+                });
+
+                await this.cacheManager.set(`${this.marketsMovers}_${exchange}`, result, this.ttl);
                 cache = await this.cacheManager.get(`${this.marketsMovers}_${exchange}`);
             }
 
             return cache;
         } catch (e) {
             throw new InternalServerErrorException("Couldn't get market movers prices", e.message);
+        }
+    }
+
+    async getStockQuotesBySymbols(symbols: string[], exchange: string): Promise<StockPricesModel[]> {
+        try {
+            let cache: StockPricesModel[] = await this.cacheManager.get(`${this.marketsMovers}_${exchange}_SYMBOLS`);
+
+            if (!cache) {
+                const { data }: { data: StockPricesModel[] } = await this.request.get(`/quote/${symbols.join(',')}`);
+
+                await this.cacheManager.set(`${this.marketsMovers}_${exchange}_SYMBOLS`, data, this.ttl);
+                cache = await this.cacheManager.get(`${this.marketsMovers}_${exchange}_SYMBOLS`);
+            }
+
+            return cache;
+        } catch (e) {
+            throw new InternalServerErrorException("Couldn't get stock quotes by symbols", e.message);
         }
     }
 }

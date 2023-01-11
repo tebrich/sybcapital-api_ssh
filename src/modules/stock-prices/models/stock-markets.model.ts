@@ -1,3 +1,5 @@
+import { StockPricesModel } from './stock-prices.model';
+
 export interface StockMarketsMoversModel {
     symbol: string;
     companyName: string;
@@ -13,4 +15,5 @@ export interface StockMarketsMoversModel {
     country: string;
     isEtf: boolean;
     isActivelyTrading: boolean;
+    stockPrice: StockPricesModel;
 }
