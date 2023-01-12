@@ -101,11 +101,12 @@ export class PostsService {
     }
 
     async create(postDto: PostDto): Promise<Post> {
-        const { title, excerpt, content, authorId, tags, categories, status } = postDto;
+        const { title, excerpt, content, authorId, tags, categories, status, files } = postDto;
         try {
             const categoriesIds = await this.categoriesService.getCategoriesList(categories);
             const tagsIds = await this.tagsService.getTagsList(tags);
             const author = await this.usersService.findOneById(authorId);
+            const filesId = await this.filesService.getFilesByArrayId([files]);
 
             const post = new Post();
             post.title = title;
@@ -114,6 +115,7 @@ export class PostsService {
             post.author = author;
             post.categories = categoriesIds;
             post.tags = tagsIds;
+            post.files = filesId;
 
             if (status) {
                 post.status = status;
@@ -127,7 +129,7 @@ export class PostsService {
 
     async update(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
         try {
-            const { title, excerpt, content, authorId, tags, categories, status } = updatePostDto;
+            const { title, excerpt, content, authorId, tags, categories, status, files } = updatePostDto;
 
             const post = await this.postsRepository.findOneBy({ id });
 
@@ -160,6 +162,11 @@ export class PostsService {
             if (categories) {
                 const categoriesIds = await this.categoriesService.getCategoriesList(categories);
                 post.categories = categoriesIds;
+            }
+
+            if (files) {
+                const filesId = await this.filesService.getFilesByArrayId([files]);
+                post.files = filesId;
             }
 
             if (status) {

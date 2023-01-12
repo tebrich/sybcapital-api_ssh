@@ -27,6 +27,10 @@ export class PostDto {
     tags: string[];
 
     @IsOptional()
+    @IsNumber()
+    files: number;
+
+    @IsOptional()
     @IsEnum(PostStatus)
     status?: PostStatus;
 }
@@ -55,6 +59,10 @@ export class UpdatePostDto {
     @IsOptional()
     @IsArray()
     tags?: string[];
+
+    @IsOptional()
+    @IsNumber()
+    files?: number;
 
     @IsOptional()
     @IsEnum(PostStatus)
