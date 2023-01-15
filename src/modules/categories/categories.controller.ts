@@ -41,4 +41,9 @@ export class CategoriesController {
     async getCategoriesList(@Body() categoriesFilter: string[]) {
         return await this.categoriesService.getCategoriesList(categoriesFilter);
     }
+
+    @Get('/list/menu')
+    async getCategoriesForMenu() {
+        return await this.categoriesService.getCategoriesForMenu();
+    }
 }

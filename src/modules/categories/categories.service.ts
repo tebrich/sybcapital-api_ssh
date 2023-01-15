@@ -58,9 +58,12 @@ export class CategoriesService {
     }
 
     async create(categoryDto: CategoriesDto): Promise<Category> {
-        const { name, description } = categoryDto;
+        const { name, description, featured, parentId } = categoryDto;
         try {
-            const category = this.categoriesRepository.create({ name, description });
+            let parent = null;
+            if (parentId) parent = await this.getOne(parentId);
+
+            const category = this.categoriesRepository.create({ name, description, featured, parent });
             return await this.categoriesRepository.save(category);
         } catch (err) {
             throw new BadRequestException(err.message, err.stack);
@@ -68,7 +71,7 @@ export class CategoriesService {
     }
 
     async update(id: number, categoryDto: UpdateCategoriesDto): Promise<Category> {
-        const { name, description } = categoryDto;
+        const { name, description, featured, parentId } = categoryDto;
         try {
             const category = await this.getOne(id);
 
@@ -86,6 +89,15 @@ export class CategoriesService {
 
             if (description) {
                 category.description = description;
+            }
+
+            if (parentId) {
+                const parent = await this.getOne(parentId);
+                category.parent = parent;
+            }
+
+            if (featured) {
+                category.featured = featured;
             }
 
             return await this.categoriesRepository.save(category);
@@ -131,6 +143,17 @@ export class CategoriesService {
             return categoriesToReturn;
         } catch (err) {
             throw new BadRequestException(err.message, err.stack);
+        }
+    }
+
+    async getCategoriesForMenu(): Promise<Category[]> {
+        try {
+            return await this.categoriesRepository.find({
+                where: { featured: true },
+                relations: ['children'],
+            });
+        } catch (e) {
+            throw new BadRequestException(e.message, e.stack);
         }
     }
 }

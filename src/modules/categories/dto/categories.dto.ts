@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CategoriesDto {
     @IsNotEmpty()
@@ -8,6 +8,14 @@ export class CategoriesDto {
     @IsOptional()
     @IsString()
     description?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    featured?: boolean;
+
+    @IsOptional()
+    @IsNumber()
+    parentId?: number;
 }
 
 export class UpdateCategoriesDto {
@@ -18,4 +26,12 @@ export class UpdateCategoriesDto {
     @IsOptional()
     @IsString()
     description?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    featured?: boolean;
+
+    @IsOptional()
+    @IsNumber()
+    parentId?: number;
 }
