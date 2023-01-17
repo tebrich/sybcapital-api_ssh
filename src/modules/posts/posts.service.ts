@@ -1,16 +1,18 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { Post } from './posts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PostsFilterDto } from './dto/posts-filter.dto';
-import { PostDto, UpdatePostDto } from './dto/posts.dto';
+import * as dayjs from 'dayjs';
+import fetch from 'node-fetch';
+import { Like, Repository } from 'typeorm';
+
+import * as Slugify from '../../utils/slugify';
 import { CategoriesService } from '../categories/categories.service';
+import { FilesService } from '../files/files.service';
 import { TagsService } from '../tags/tags.service';
 import { UsersService } from '../users/users.service';
+import { PostDto, UpdatePostDto } from './dto/posts.dto';
+import { PostsFilterDto } from './dto/posts-filter.dto';
+import { Post } from './posts.entity';
 import { PostStatus } from './posts-status.enum';
-import * as dayjs from 'dayjs';
-import { FilesService } from '../files/files.service';
-import fetch from 'node-fetch';
 
 @Injectable()
 export class PostsService {
@@ -189,7 +191,7 @@ export class PostsService {
     }
 
     async uploadExportedPosts(exportedPosts: ExportedPosts[]): Promise<any> {
-        let i = 260;
+        let i = 1;
 
         const author = await this.usersService.findOneById(1);
         for (const exportedPost of exportedPosts) {
@@ -203,7 +205,15 @@ export class PostsService {
                 Categorías: categories,
                 'Image URL': img,
             } = exportedPost;
-            if (Status === 'publish') {
+
+            const tempSlug = Slugify.slugify(Title.replace('\xFFFD', ''));
+
+            const similarPost = await this.postsRepository
+                .createQueryBuilder('post')
+                .where('post.slug like :slug', { slug: `%${tempSlug.slice(1, 30)}%` })
+                .getOne();
+
+            if (Status === 'publish' && !similarPost) {
                 const categoriesIds = await this.categoriesService.getCategoriesList(categories.split(','));
 
                 const post = new Post();
@@ -234,18 +244,52 @@ export class PostsService {
                         post.files = image;
                     }
                 }
-                console.log(`Post ${Title} created ${i}`);
 
-                await post.save();
+                console.log(`Post ${Title} created ${i}`);
+                await this.postsRepository.createQueryBuilder().insert().into(Post).values(post).execute();
             }
-            if (i < 10) {
-                this.delay(1000);
+
+            if (i % 10 === 0) {
+                await this.delay(1000);
             }
             i++;
         }
     }
     delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async removeOldPhotos() {
+        try {
+            const [posts, count] = await this.postsRepository.findAndCount({
+                where: { content: Like('%https://sybcapital.com/wp-content/uploads%') },
+                select: ['id', 'title', 'content'],
+            });
+
+            const urlRegex = /(https?:\/\/sybcapital.com\/wp-content[^\s]+)/g;
+            for (const post of posts) {
+                const urls = post.content.match(urlRegex);
+
+                for (const url of urls) {
+                    const imageData = await fetch(url).then((r) => {
+                        if (r.ok) {
+                            return r.buffer();
+                        }
+                    });
+                    if (imageData) {
+                        const imageUrl = await this.filesService.uploadImage(imageData, 'images', false);
+                        post.content = post.content.replace(url, imageUrl.filePath);
+                        console.log(`Post ${post.title} updated with old image ${url} to ${imageUrl.filePath}`);
+                    }
+                    await post.save();
+                }
+                await this.delay(1000);
+            }
+
+            return count;
+        } catch (err) {
+            new InternalServerErrorException(err);
+        }
     }
 }
 

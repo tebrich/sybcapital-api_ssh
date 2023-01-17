@@ -49,4 +49,10 @@ export class PostsController {
     async uploadExportedPosts(@Body() exportedPosts: any) {
         return await this.postsService.uploadExportedPosts(exportedPosts);
     }
+
+    @UseGuards(AuthGuard())
+    @Get('/exported-posts/replace-files')
+    async removeOldPhotos() {
+        return await this.postsService.removeOldPhotos();
+    }
 }
