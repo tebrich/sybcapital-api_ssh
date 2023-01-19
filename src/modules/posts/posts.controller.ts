@@ -44,6 +44,11 @@ export class PostsController {
         return await this.postsService.delete(id);
     }
 
+    @Patch('/update/shared')
+    async updateShared(@Query('id', ParseIntPipe) id: number, @Query('shared') shared: string) {
+        return await this.postsService.updateShared(id, shared);
+    }
+
     @UseGuards(AuthGuard())
     @Post('/exported-posts/recover')
     async uploadExportedPosts(@Body() exportedPosts: any) {

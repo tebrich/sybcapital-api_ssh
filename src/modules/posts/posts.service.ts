@@ -31,7 +31,7 @@ export class PostsService {
             const query = this.postsRepository.createQueryBuilder('post');
 
             if (title) {
-                query.andWhere('post.title = :title', { title: `%${title}%` });
+                query.andWhere('post.title like :title', { title: `%${title}%` });
             }
 
             if (authorId) {
@@ -187,6 +187,26 @@ export class PostsService {
             return await this.postsRepository.softRemove(post);
         } catch (err) {
             throw new InternalServerErrorException(err.message, err.stack);
+        }
+    }
+
+    async updateShared(id: number, shared: string): Promise<Post> {
+        try {
+            const post = await this.postsRepository.findOneBy({ id });
+
+            if (!post) {
+                throw new NotFoundException('Post not found');
+            }
+
+            console.log(post.shared);
+            const oldSharedValue = post.shared[shared];
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            post.shared = { ...post.shared, [shared]: oldSharedValue + 1 };
+
+            return await post.save();
+        } catch (e) {
+            throw new InternalServerErrorException('Error update shared', e.stack);
         }
     }
 
