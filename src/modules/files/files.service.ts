@@ -55,7 +55,7 @@ export class FilesService {
         const buffer = Buffer.from(file.buffer);
 
         const params = {
-            Body: buffer,
+            Body: await this.resizeImages(buffer),
             Bucket: this.AWS_BUCKET,
             Key: urlKey,
             ACL: 'public-read',
