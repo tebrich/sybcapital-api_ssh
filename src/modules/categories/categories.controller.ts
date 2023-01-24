@@ -20,6 +20,12 @@ export class CategoriesController {
     async getOne(@Param('id', ParseIntPipe) id: number, @Query('includePosts') includePosts = false) {
         return await this.categoriesService.getOne(id, includePosts);
     }
+
+    @Get('/slug/:slug')
+    async getOneBySlug(@Param('slug') slug: string) {
+        return await this.categoriesService.getOneBySlug(slug);
+    }
+
     @UseGuards(AuthGuard())
     @Post()
     async create(@Body() categoryDto: CategoriesDto) {

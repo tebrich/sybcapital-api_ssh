@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, NotFound
 import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import fetch from 'node-fetch';
-import { Like, Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 
 import * as Slugify from '../../utils/slugify';
 import { CategoriesService } from '../categories/categories.service';
@@ -13,6 +13,7 @@ import { PostDto, UpdatePostDto } from './dto/posts.dto';
 import { PostsFilterDto } from './dto/posts-filter.dto';
 import { Post } from './posts.entity';
 import { PostStatus } from './posts-status.enum';
+import * as fs from 'fs';
 
 @Injectable()
 export class PostsService {
@@ -309,6 +310,47 @@ export class PostsService {
             return count;
         } catch (err) {
             new InternalServerErrorException(err);
+        }
+    }
+
+    async updatePostPhotos(postsList: ExportedPosts[]) {
+        try {
+            const posts = await this.postsRepository.find({
+                where: { files: { id: IsNull() } },
+                relations: ['files'],
+            });
+
+            for (const post of posts) {
+                const postList = postsList.find((p) => p.Title === post.title);
+
+                if (postList) {
+                    const { 'Image URL': url } = postList;
+
+                    if (url) {
+                        let urlPath = url.replace('https://sybcapital.com/wp-content/', './');
+                        const searchPosition = urlPath.search(/https:/);
+                        console.log(searchPosition);
+                        if (searchPosition > 0) {
+                            urlPath = urlPath.slice(0, searchPosition - 1);
+                        }
+
+                        console.log(urlPath);
+
+                        const file = fs.readFileSync(urlPath);
+
+                        if (file) {
+                            const imageUrl = await this.filesService.uploadImage(file, 'images', true);
+                            post.files = await this.filesService.getFilesByArrayId([imageUrl.id]);
+                            console.log(`Post ${post.title} updated with old image ${url} to ${imageUrl.filePath}`);
+                        }
+                        await post.save();
+                    }
+                }
+            }
+
+            return posts;
+        } catch (e) {
+            throw new InternalServerErrorException('Error update post photos', e.message);
         }
     }
 }

@@ -60,4 +60,10 @@ export class PostsController {
     async removeOldPhotos() {
         return await this.postsService.removeOldPhotos();
     }
+
+    @UseGuards(AuthGuard())
+    @Post('/exported-posts/update-photos')
+    async updatePhotos(@Body() exportedPosts: any) {
+        return await this.postsService.updatePostPhotos(exportedPosts);
+    }
 }

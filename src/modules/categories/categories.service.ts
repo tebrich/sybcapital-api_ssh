@@ -57,6 +57,25 @@ export class CategoriesService {
         }
     }
 
+    async getOneBySlug(slug: string): Promise<Category> {
+        try {
+            const query = this.categoriesRepository.createQueryBuilder('category');
+
+            query.where('category.slug = :slug', { slug });
+            query.leftJoinAndSelect('category.posts', 'post');
+            query.leftJoinAndSelect('category.parent', 'parent');
+
+            query.leftJoinAndSelect('post.author', 'author');
+            query.leftJoinAndSelect('post.files', 'files');
+
+            query.orderBy('post.createdAt', 'DESC');
+
+            return await query.getOne();
+        } catch (e) {
+            throw new BadRequestException(e.message, e.stack);
+        }
+    }
+
     async create(categoryDto: CategoriesDto): Promise<Category> {
         const { name, description, featured, parentId } = categoryDto;
         try {
