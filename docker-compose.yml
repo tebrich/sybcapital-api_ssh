@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/usr/src/app
     ports:
-      - 3000:3000
+      - "3000:3000"
     command: yarn start:dev
     env_file:
       - .env
@@ -28,10 +28,11 @@ services:
    volumes:
      - database-data-sybcapital:/var/lib/postgresql/data/ # persist data even if container shuts down
    ports:
-     - 3306:3306
+     - "3306:3306"
+   expose:
+     - 3306
    networks:
      - webnet
-
 
   redis-sybcapital:
     container_name: redis-sybcapital
@@ -40,7 +41,7 @@ services:
     networks:
       - webnet
     ports:
-      - 6379:6379
+      - "6379:6379"
 
 volumes:
   database-data-sybcapital: # named volume for easier docker-compose management
