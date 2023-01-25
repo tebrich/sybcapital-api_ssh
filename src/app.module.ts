@@ -11,6 +11,7 @@ import { StockPricesModule } from './modules/stock-prices/stock-prices.module';
 import { SubscribeModule } from './modules/subscribe/subscribe.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { UsersModule } from './modules/users/users.module';
+import { ContactModule } from './modules/contact/contact.module';
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { UsersModule } from './modules/users/users.module';
         StockPricesModule,
         MailerModule,
         SubscribeModule,
+        ContactModule,
     ],
 })
 export class AppModule {}
