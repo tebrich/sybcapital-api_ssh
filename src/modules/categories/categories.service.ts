@@ -115,9 +115,7 @@ export class CategoriesService {
                 category.parent = parent;
             }
 
-            if (featured) {
-                category.featured = featured;
-            }
+            category.featured = featured;
 
             return await this.categoriesRepository.save(category);
         } catch (err) {
