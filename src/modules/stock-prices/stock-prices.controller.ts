@@ -22,4 +22,9 @@ export class StockPricesController {
     async getMakertsMovers(@Query('exchange') exchange: string, @Query('limit', ParseIntPipe) limit: number) {
         return await this.stockPricesService.getMarketsMovers(exchange, limit);
     }
+
+    @Get('/forex')
+    async getForexPrices() {
+        return await this.stockPricesService.getForexPrices();
+    }
 }

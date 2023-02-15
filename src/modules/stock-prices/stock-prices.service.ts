@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, CACHE_MANAGER, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { Cache } from 'cache-manager';
@@ -105,6 +105,25 @@ export class StockPricesService {
             return cache;
         } catch (e) {
             throw new InternalServerErrorException("Couldn't get stock quotes by symbols", e.message);
+        }
+    }
+
+    async getForexPrices(): Promise<StockPricesModel[]> {
+        try {
+            let cache: StockPricesModel[] = await this.cacheManager.get('FOREX_PRICES');
+
+            if (!cache) {
+                const { data }: { data: StockPricesModel[] } = await this.request.get('/quotes/forex');
+
+                const ordered = data.sort((a, b) => Math.random() - 0.5);
+
+                await this.cacheManager.set('FOREX_PRICES', ordered, this.ttl);
+                cache = await this.cacheManager.get('FOREX_PRICES');
+            }
+
+            return cache;
+        } catch (e) {
+            throw new BadRequestException("Couldn't get forex prices", e.message);
         }
     }
 }
