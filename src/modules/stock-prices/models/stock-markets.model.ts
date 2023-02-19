@@ -15,5 +15,5 @@ export interface StockMarketsMoversModel {
     country: string;
     isEtf: boolean;
     isActivelyTrading: boolean;
-    stockPrice: StockPricesModel;
+    stockPrice?: StockPricesModel;
 }

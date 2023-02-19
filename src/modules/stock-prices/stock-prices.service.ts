@@ -5,10 +5,12 @@ import { Cache } from 'cache-manager';
 
 import { StockMarketsMoversModel } from './models/stock-markets.model';
 import { StockMarketsModel, StockPricesModel } from './models/stock-prices.model';
+import { StockFinancialRatios } from './models/stock-ticker.model';
 @Injectable()
 export class StockPricesService {
     private request: AxiosInstance;
     readonly ttl = 60 * 60;
+    readonly dayTtl = 60 * 60 * 24;
     readonly quotesPrices = 'QUOTES_PRICES';
     readonly marketsMovers = 'MARKETS_MOVERS';
     constructor(
@@ -124,6 +126,61 @@ export class StockPricesService {
             return cache;
         } catch (e) {
             throw new BadRequestException("Couldn't get forex prices", e.message);
+        }
+    }
+
+    async getFinancialRatios(symbol: string): Promise<StockFinancialRatios> {
+        try {
+            let cache: StockFinancialRatios = await this.cacheManager.get(`${symbol}_FINANCIAL_RATIOS`);
+
+            if (!cache) {
+                const { data: financialData }: { data: StockFinancialRatios[] } = await this.request.get(
+                    `/ratios-ttm/${symbol}`,
+                );
+
+                await this.cacheManager.set(`${symbol}_FINANCIAL_RATIOS`, financialData[0], this.dayTtl);
+                cache = await this.cacheManager.get(`${symbol}_FINANCIAL_RATIOS`);
+            }
+
+            return cache;
+        } catch (e) {
+            throw new BadRequestException("Couldn't get financial ratios", e.message);
+        }
+    }
+
+    async getStockPricesBySymbol(symbol: string): Promise<StockPricesModel> {
+        try {
+            let cache = await this.cacheManager.get(`${symbol}_${this.quotesPrices}`);
+
+            if (!cache) {
+                const { data }: { data: StockPricesModel[] } = await this.request.get(`/quote/${symbol}`);
+
+                await this.cacheManager.set(`${symbol}_${this.quotesPrices}`, data[0], this.ttl);
+                cache = await this.cacheManager.get(`${symbol}_${this.quotesPrices}`);
+            }
+
+            return cache;
+        } catch (e) {
+            throw new InternalServerErrorException("Couldn't get stock prices", e.message);
+        }
+    }
+
+    async getFinancialStatementSymbolLists(): Promise<string[]> {
+        try {
+            let cache = await this.cacheManager.get('FINANCIAL_STATEMENT_SYMBOLS');
+
+            if (!cache) {
+                const { data }: { data: string[] } = await this.request.get('/financial-statement-symbol-lists');
+
+                const ordered = data.sort((a, b) => Math.random() - 0.5);
+
+                await this.cacheManager.set('FINANCIAL_STATEMENT_SYMBOLS', ordered, this.dayTtl);
+                cache = await this.cacheManager.get('FINANCIAL_STATEMENT_SYMBOLS');
+            }
+
+            return cache;
+        } catch (e) {
+            throw new InternalServerErrorException("Couldn't get financial statement symbols", e.message);
         }
     }
 }

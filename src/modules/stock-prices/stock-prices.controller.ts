@@ -1,4 +1,4 @@
-import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { StockPricesService } from './stock-prices.service';
@@ -26,5 +26,20 @@ export class StockPricesController {
     @Get('/forex')
     async getForexPrices() {
         return await this.stockPricesService.getForexPrices();
+    }
+
+    @Get('/financial-ratios/:symbol')
+    async getFinancialRatios(@Param('symbol') symbol: string) {
+        return await this.stockPricesService.getFinancialRatios(symbol);
+    }
+
+    @Get('/stock/:symbol')
+    async getStockPricesBySymbol(@Param('symbol') symbol: string) {
+        return await this.stockPricesService.getStockPricesBySymbol(symbol);
+    }
+
+    @Get('/financial-symbol-lists')
+    async getFinancialStatementSymbolLists() {
+        return await this.stockPricesService.getFinancialStatementSymbolLists();
     }
 }
