@@ -17,8 +17,6 @@ services:
       - database-sybcapital
     links:
       - database-sybcapital:database-sybcapital
-    networks:
-      - webnet
 
   database-sybcapital:
    container_name: database-sybcapital
@@ -31,20 +29,13 @@ services:
      - "3306:3306"
    expose:
      - 3306
-   networks:
-     - webnet
 
   redis-sybcapital:
     container_name: redis-sybcapital
     image: redis:5
     # command: redis-server --requirepass yourpassword
-    networks:
-      - webnet
     ports:
       - "6379:6379"
 
 volumes:
   database-data-sybcapital: # named volume for easier docker-compose management
-networks:
-  webnet:
-    name: webnet

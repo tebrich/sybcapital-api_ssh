@@ -42,4 +42,9 @@ export class StockPricesController {
     async getFinancialStatementSymbolLists() {
         return await this.stockPricesService.getFinancialStatementSymbolLists();
     }
+
+    @Get('/financial-resume/:symbol')
+    async getFinancialResume(@Param('symbol') symbol: string) {
+        return await this.stockPricesService.getFinancialResume(symbol);
+    }
 }
