@@ -47,4 +47,19 @@ export class StockPricesController {
     async getFinancialResume(@Param('symbol') symbol: string) {
         return await this.stockPricesService.getFinancialResume(symbol);
     }
+
+    @Get('/financial-bars/:symbol')
+    async getFinancialBars(@Param('symbol') symbol: string) {
+        return await this.stockPricesService.getFinancialBars(symbol);
+    }
+
+    @Get('/financial-bubbles/:symbol')
+    async getFinancialBubbles(@Param('symbol') symbol: string) {
+        return await this.stockPricesService.getFinancialBubbles(symbol);
+    }
+
+    @Get('/financial-upgrades/:symbol')
+    async getFinancialUpgrades(@Param('symbol') symbol: string) {
+        return await this.stockPricesService.getFinancialUpgrades(symbol);
+    }
 }

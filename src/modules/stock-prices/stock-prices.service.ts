@@ -3,7 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { Cache } from 'cache-manager';
 
-import { FinancialResume } from './models/stock-financial-summary.model';
+import {
+    FinancialBars,
+    FinancialBubbles,
+    FinancialResume,
+    FinancialUpgrades,
+} from './models/stock-financial-summary.model';
 import { StockMarketsMoversModel } from './models/stock-markets.model';
 import { StockMarketsModel, StockPricesModel } from './models/stock-prices.model';
 import { StockFinancialRatios } from './models/stock-ticker.model';
@@ -231,6 +236,68 @@ export class StockPricesService {
             return cache;
         } catch (e) {
             throw new InternalServerErrorException("Couldn't get financial resume", e.message);
+        }
+    }
+
+    async getFinancialBars(symbol: string): Promise<FinancialBars> {
+        try {
+            let cache = await this.cacheManager.get(`${symbol}_FINANCIAL_BARS`);
+
+            if (!cache) {
+                const { data: dataAnnual } = await this.request.get(`/income-statement/${symbol}`, {
+                    params: { limit: 5 },
+                });
+                const { data: dataQuarterly } = await this.request.get(`/income-statement/${symbol}`, {
+                    params: { limit: 5, period: 'quarter' },
+                });
+
+                const financialBars = new FinancialBars();
+                financialBars.annual = dataAnnual;
+                financialBars.quarterly = dataQuarterly;
+
+                await this.cacheManager.set(`${symbol}_FINANCIAL_BARS`, financialBars, this.dayTtl);
+                cache = await this.cacheManager.get(`${symbol}_FINANCIAL_BARS`);
+            }
+
+            return cache;
+        } catch (e) {
+            throw new InternalServerErrorException("Couldn't get financial bars", e.message);
+        }
+    }
+
+    async getFinancialBubbles(symbol: string): Promise<FinancialBubbles[]> {
+        try {
+            let cache = await this.cacheManager.get(`${symbol}_FINANCIAL_BUBBLES`);
+
+            if (!cache) {
+                const { data } = await this.request.get(`/earnings-surprises/${symbol}`, { params: { limit: 5 } });
+
+                await this.cacheManager.set(`${symbol}_FINANCIAL_BUBBLES`, data, this.dayTtl);
+                cache = await this.cacheManager.get(`${symbol}_FINANCIAL_BUBBLES`);
+            }
+
+            return cache;
+        } catch (e) {
+            throw new InternalServerErrorException("Couldn't get financial bubbles", e.message);
+        }
+    }
+
+    async getFinancialUpgrades(symbol: string): Promise<FinancialUpgrades[]> {
+        try {
+            let cache = await this.cacheManager.get(`${symbol}_FINANCIAL_UPGRADES`);
+
+            if (!cache) {
+                const { data } = await axios.get(`https://financialmodelingprep.com/api/v4/upgrades-downgrades`, {
+                    params: { symbol, apikey: this.configService.get('FMP_API_KEY') },
+                });
+
+                await this.cacheManager.set(`${symbol}_FINANCIAL_UPGRADES`, data, this.dayTtl);
+                cache = await this.cacheManager.get(`${symbol}_FINANCIAL_UPGRADES`);
+            }
+
+            return cache;
+        } catch (e) {
+            throw new InternalServerErrorException("Couldn't get financial upgrades", e.message);
         }
     }
 }
