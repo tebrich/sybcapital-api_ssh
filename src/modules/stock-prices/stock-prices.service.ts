@@ -52,7 +52,6 @@ export class StockPricesService {
             let data: StockPricesModel[] = await this.cacheManager.get(this.quotesPrices);
 
             if (!data) {
-                console.log('From api');
                 data = await this.getStockPrices();
             }
 
@@ -171,16 +170,22 @@ export class StockPricesService {
         }
     }
 
-    async getFinancialStatementSymbolLists(): Promise<string[]> {
+    async getFinancialStatementSymbolLists(): Promise<{ name: string; symbol: string }[]> {
         try {
             let cache = await this.cacheManager.get('FINANCIAL_STATEMENT_SYMBOLS');
 
             if (!cache) {
-                const { data }: { data: string[] } = await this.request.get('/financial-statement-symbol-lists');
+                const { data }: { data: { name: string; symbol: string }[] } = await this.request.get(
+                    '/available-traded/list',
+                );
 
-                const ordered = data.sort((a, b) => Math.random() - 0.5);
+                const list = data
+                    .map((item) => {
+                        return { name: `${item.name} - ${item.symbol}`, symbol: item.symbol };
+                    })
+                    .sort((a, b) => Math.random() - 0.5);
 
-                await this.cacheManager.set('FINANCIAL_STATEMENT_SYMBOLS', ordered, this.dayTtl);
+                await this.cacheManager.set('FINANCIAL_STATEMENT_SYMBOLS', list, this.dayTtl);
                 cache = await this.cacheManager.get('FINANCIAL_STATEMENT_SYMBOLS');
             }
 
