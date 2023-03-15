@@ -62,4 +62,9 @@ export class StockPricesController {
     async getFinancialUpgrades(@Param('symbol') symbol: string) {
         return await this.stockPricesService.getFinancialUpgrades(symbol);
     }
+
+    @Get('/financial-price-area/:symbol')
+    getFinancialPriceArea(@Param('symbol') symbol: string, @Query('mode') mode: string) {
+        return this.stockPricesService.getFinancialPriceArea(symbol, mode);
+    }
 }

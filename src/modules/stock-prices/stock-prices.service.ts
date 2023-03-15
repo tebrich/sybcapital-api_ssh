@@ -6,12 +6,14 @@ import { Cache } from 'cache-manager';
 import {
     FinancialBars,
     FinancialBubbles,
+    FinancialPriceArea,
     FinancialResume,
     FinancialUpgrades,
 } from './models/stock-financial-summary.model';
 import { StockMarketsMoversModel } from './models/stock-markets.model';
 import { StockMarketsModel, StockPricesModel } from './models/stock-prices.model';
 import { StockFinancialRatios } from './models/stock-ticker.model';
+import * as dayjs from 'dayjs';
 @Injectable()
 export class StockPricesService {
     private request: AxiosInstance;
@@ -303,6 +305,28 @@ export class StockPricesService {
             return cache;
         } catch (e) {
             throw new InternalServerErrorException("Couldn't get financial upgrades", e.message);
+        }
+    }
+
+    async getFinancialPriceArea(symbol: string, mode: string): Promise<FinancialPriceArea[]> {
+        try {
+            let cache = await this.cacheManager.get(`${symbol}_${mode}_FINANCIAL_PRICE_AREA`);
+
+            if (!cache) {
+                const type = mode === 'daily' ? '1min' : '1day';
+                const from = mode === 'daily' ? dayjs().subtract(1, 'day').format('YYYY-MM-DD') : null;
+
+                const { data } = await this.request.get(`/historical-chart/${type}/${symbol}`, {
+                    params: { from },
+                });
+
+                await this.cacheManager.set(`${symbol}_${mode}_FINANCIAL_PRICE_AREA`, data, this.dayTtl);
+                cache = await this.cacheManager.get(`${symbol}_${mode}_FINANCIAL_PRICE_AREA`);
+            }
+
+            return cache;
+        } catch (e) {
+            throw new InternalServerErrorException("Couldn't get financial price area", e.message);
         }
     }
 }

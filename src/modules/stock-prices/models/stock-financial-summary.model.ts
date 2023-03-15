@@ -88,3 +88,12 @@ export interface FinancialUpgrades {
     action: string;
     priceWhenPosted: number;
 }
+
+export class FinancialPriceArea {
+    date: Date;
+    open: number;
+    low: number;
+    high: number;
+    close: number;
+    volume: number;
+}
