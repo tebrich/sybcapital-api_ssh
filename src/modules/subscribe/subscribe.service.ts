@@ -3,10 +3,20 @@ import { MailerService } from '@nestjs-modules/mailer';
 
 // import * as pug from 'pug';
 import { Subscribe } from './subscribe.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SubscribeService {
-    constructor(readonly mailerService: MailerService) {}
+    constructor(
+        @InjectRepository(Subscribe)
+        private readonly subscribeRepository: Repository<Subscribe>,
+        readonly mailerService: MailerService,
+    ) {}
+
+    async getAll() {
+        return await this.subscribeRepository.find();
+    }
 
     async subscribe(emailDto: { name: string; email: string }) {
         try {
