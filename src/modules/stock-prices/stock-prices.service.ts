@@ -4,6 +4,8 @@ import axios, { AxiosInstance } from 'axios';
 import { Cache } from 'cache-manager';
 
 import {
+    FinancialAnalytics,
+    FinancialAnalyticsData,
     FinancialBars,
     FinancialBubbles,
     FinancialPriceArea,
@@ -327,6 +329,73 @@ export class StockPricesService {
             return cache;
         } catch (e) {
             throw new InternalServerErrorException("Couldn't get financial price area", e.message);
+        }
+    }
+
+    async getTechnicalIndicators(symbol: string, range: string, type: string): Promise<FinancialAnalyticsData> {
+        const { data } = await this.request.get(`/technical_indicator/${range}/${symbol}`, {
+            params: { period: 10, type },
+        });
+        return data[0];
+    }
+
+    async getFinancialAnalytics(symbol: string): Promise<FinancialAnalytics> {
+        try {
+            let cache = await this.cacheManager.get(`${symbol}_FINANCIAL_ANALYTICS`);
+
+            if (!cache) {
+                const response = await Promise.all([
+                    this.getTechnicalIndicators(symbol, '1min', 'sma'),
+                    this.getTechnicalIndicators(symbol, '1hour', 'sma'),
+                    this.getTechnicalIndicators(symbol, '4hour', 'sma'),
+                    this.getTechnicalIndicators(symbol, 'daily', 'sma'),
+                    this.getTechnicalIndicators(symbol, '1min', 'williams'),
+                    this.getTechnicalIndicators(symbol, '1hour', 'williams'),
+                    this.getTechnicalIndicators(symbol, '4hour', 'williams'),
+                    this.getTechnicalIndicators(symbol, 'daily', 'williams'),
+                    this.getTechnicalIndicators(symbol, '1min', 'rsi'),
+                    this.getTechnicalIndicators(symbol, '1hour', 'rsi'),
+                    this.getTechnicalIndicators(symbol, '4hour', 'rsi'),
+                    this.getTechnicalIndicators(symbol, 'daily', 'rsi'),
+                    this.getTechnicalIndicators(symbol, '1min', 'adx'),
+                    this.getTechnicalIndicators(symbol, '1hour', 'adx'),
+                    this.getTechnicalIndicators(symbol, '4hour', 'adx'),
+                    this.getTechnicalIndicators(symbol, 'daily', 'adx'),
+                    this.getTechnicalIndicators(symbol, '1min', 'standardDeviation'),
+                    this.getTechnicalIndicators(symbol, '1hour', 'standardDeviation'),
+                    this.getTechnicalIndicators(symbol, '4hour', 'standardDeviation'),
+                    this.getTechnicalIndicators(symbol, 'daily', 'standardDeviation'),
+                ]);
+
+                const financialAnalytics = new FinancialAnalytics();
+                financialAnalytics.SmaMin = response[0];
+                financialAnalytics.Sma1 = response[1];
+                financialAnalytics.Sma4 = response[2];
+                financialAnalytics.Sma24 = response[3];
+                financialAnalytics.WilliamsMin = response[4];
+                financialAnalytics.Williams1 = response[5];
+                financialAnalytics.Williams4 = response[6];
+                financialAnalytics.Williams24 = response[7];
+                financialAnalytics.RsiMin = response[8];
+                financialAnalytics.Rsi1 = response[9];
+                financialAnalytics.Rsi4 = response[10];
+                financialAnalytics.Rsi24 = response[11];
+                financialAnalytics.AdxMin = response[12];
+                financialAnalytics.Adx1 = response[13];
+                financialAnalytics.Adx4 = response[14];
+                financialAnalytics.Adx24 = response[15];
+                financialAnalytics.DsMin = response[16];
+                financialAnalytics.Ds1 = response[17];
+                financialAnalytics.Ds4 = response[18];
+                financialAnalytics.Ds24 = response[19];
+
+                await this.cacheManager.set(`${symbol}_FINANCIAL_ANALYTICS`, financialAnalytics, this.ttl);
+                cache = await this.cacheManager.get(`${symbol}_FINANCIAL_ANALYTICS`);
+            }
+
+            return cache;
+        } catch (e) {
+            throw new InternalServerErrorException("Couldn't get financial analytics", e.message);
         }
     }
 }

@@ -67,4 +67,9 @@ export class StockPricesController {
     getFinancialPriceArea(@Param('symbol') symbol: string, @Query('mode') mode: string) {
         return this.stockPricesService.getFinancialPriceArea(symbol, mode);
     }
+
+    @Get('/financial-analytics/:symbol')
+    getFinancialAnalytics(@Param('symbol') symbol: string) {
+        return this.stockPricesService.getFinancialAnalytics(symbol);
+    }
 }

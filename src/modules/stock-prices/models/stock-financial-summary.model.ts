@@ -97,3 +97,39 @@ export class FinancialPriceArea {
     close: number;
     volume: number;
 }
+export class FinancialAnalyticsData {
+    date: Date;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    sma?: number;
+    williams?: number;
+    rsi?: number;
+    adx?: number;
+    standardDeviation?: number;
+}
+
+export class FinancialAnalytics {
+    SmaMin: FinancialAnalyticsData;
+    Sma1: FinancialAnalyticsData;
+    Sma4: FinancialAnalyticsData;
+    Sma24: FinancialAnalyticsData;
+    WilliamsMin: FinancialAnalyticsData;
+    Williams1: FinancialAnalyticsData;
+    Williams4: FinancialAnalyticsData;
+    Williams24: FinancialAnalyticsData;
+    RsiMin: FinancialAnalyticsData;
+    Rsi1: FinancialAnalyticsData;
+    Rsi4: FinancialAnalyticsData;
+    Rsi24: FinancialAnalyticsData;
+    AdxMin: FinancialAnalyticsData;
+    Adx1: FinancialAnalyticsData;
+    Adx4: FinancialAnalyticsData;
+    Adx24: FinancialAnalyticsData;
+    DsMin: FinancialAnalyticsData;
+    Ds1: FinancialAnalyticsData;
+    Ds4: FinancialAnalyticsData;
+    Ds24: FinancialAnalyticsData;
+}
