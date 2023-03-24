@@ -4,17 +4,13 @@ head
     link(rel='preconnect', href='https://fonts.googleapis.com')
     link(rel='preconnect', href='https://fonts.gstatic.com', crossorigin='')
     link(href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap', rel='stylesheet')
-div(style='display: block; max-width: 500px; margin: 0 auto; margin-top: 40px;')
+div(style='display: block; max-width: 600px; margin: 0 auto; margin-top: 40px;')
     img(style='width: 200px; display: block; margin: 0 auto;', src='https://sybcapital-website.s3.sa-east-1.amazonaws.com/logo-color', alt='SyBCapital Logo')
     div(style='background-color: #f6f5f5;padding: 20px 50px;border-radius: 7px;margin-top: 20px;')
-        h2(style='text-align: center;') Bienvenido #{user} a SyB Capital
-        p(style='font-size: 20px; text-align: center;') Gracias por suscribirte a nuestro newsletter
-        p(style='margin-bottom: 5px; font-weight: 300;') Obtendras gratuitamente:
-        ul(style='padding: 0; margin: 0; margin-bottom: 30px;')
-            li Actualizaciones semanales
-            li Opciones de stock/forex/crypto
-            li Consejos de trading
-            li Se&ntilde;ales
+        h2(style='text-align: center;') &iexcl;Hay un nuevo post!
+        a(href=postLink, style='font-size: 20px; text-align: center;')
+            | #{title}
+        img(style='width: 450px; display: block; margin: 10px auto; object-fit: cover;', src=postImage, alt=title)
         p(style='text-align: center; font-size: 10px;')
             | Puedes desuscribirte cuando quieras desde &nbsp;
             a(href='http://sybcapital.com/') aqui

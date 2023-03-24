@@ -18,6 +18,14 @@ export class SubscribeService {
         return await this.subscribeRepository.find();
     }
 
+    async getAllActive() {
+        return await this.subscribeRepository.find({
+            where: {
+                subscribed: true,
+            },
+        });
+    }
+
     async subscribe(emailDto: { name: string; email: string }) {
         try {
             const subscribe = new Subscribe();
@@ -26,11 +34,14 @@ export class SubscribeService {
 
             const result = await subscribe.save();
 
-            /* await this.mailerService.sendMail({
-                to: emailDto.email,
-                subject: 'Subscribe to SyB Capital Newsletter',
-                html: pug.renderFile('src/mailer/templates/subscribe.pug', { name: emailDto.name }),
-            });*/
+            await this.mailerService.sendMail({
+                to: subscribe.email,
+                subject: 'Bienvenido a SyB Capital',
+                template: 'subscribe',
+                context: {
+                    user: subscribe.name,
+                },
+            });
 
             return result;
         } catch (e) {
