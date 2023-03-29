@@ -31,7 +31,7 @@ export class Post extends BaseEntity {
     @Column({ type: 'varchar', length: 255 })
     slug: string;
 
-    @Column()
+    @Column({ type: 'mediumtext' })
     excerpt: string;
 
     @Column({ type: 'mediumtext', select: false })
