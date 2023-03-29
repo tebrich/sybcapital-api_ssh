@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MailerService } from '@nestjs-modules/mailer';
+// import { MailerService } from '@nestjs-modules/mailer';
 import * as dayjs from 'dayjs';
 import * as fs from 'fs';
 import fetch from 'node-fetch';
@@ -15,7 +15,7 @@ import { PostDto, UpdatePostDto } from './dto/posts.dto';
 import { PostsFilterDto } from './dto/posts-filter.dto';
 import { Post } from './posts.entity';
 import { PostStatus } from './posts-status.enum';
-import { SubscribeService } from '../subscribe/subscribe.service';
+// import { SubscribeService } from '../subscribe/subscribe.service';
 
 @Injectable()
 export class PostsService {
@@ -25,9 +25,7 @@ export class PostsService {
         private readonly categoriesService: CategoriesService,
         private readonly tagsService: TagsService,
         private readonly usersService: UsersService,
-        private readonly filesService: FilesService,
-        private mailerService: MailerService,
-        private subscriberService: SubscribeService,
+        private readonly filesService: FilesService, // private mailerService: MailerService, // private subscriberService: SubscribeService,
     ) {}
 
     async getAll(postFilterDto: PostsFilterDto): Promise<[Post[], number]> {
@@ -129,20 +127,20 @@ export class PostsService {
                 post.status = status;
             }
 
-            const subscribers = await this.subscriberService.getAllActive();
-            for (const subscriber of subscribers) {
-                await this.mailerService.sendMail({
-                    to: subscriber.email,
-                    subject: '¡Nuevo post en el blog! - SyB Capital',
-                    template: 'new-post',
-                    context: {
-                        title: title,
-                        postImage: filesId[0].url,
-                        excerpt: excerpt,
-                        postLink: `https://sybcapital.com/post/${Slugify.slugify(title)}`,
-                    },
-                });
-            }
+            // const subscribers = await this.subscriberService.getAllActive();
+            // for (const subscriber of subscribers) {
+            //     await this.mailerService.sendMail({
+            //         to: subscriber.email,
+            //         subject: '¡Nuevo post en el blog! - SyB Capital',
+            //         template: 'new-post',
+            //         context: {
+            //             title: title,
+            //             postImage: filesId[0].url,
+            //             excerpt: excerpt,
+            //             postLink: `https://sybcapital.com/post/${Slugify.slugify(title)}`,
+            //         },
+            //     });
+            // }
 
             return post.save();
         } catch (err) {
