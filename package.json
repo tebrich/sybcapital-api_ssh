@@ -37,6 +37,7 @@
     "@nestjs/typeorm": "^9.0.1",
     "aws-sdk": "^2.1282.0",
     "axios": "^1.2.2",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "cache-manager": "4.1.0",
     "cache-manager-redis-store": "^3.0.1",

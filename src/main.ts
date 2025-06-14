@@ -20,6 +20,7 @@ declare global {
 global.__rootdir__ = __dirname || process.cwd();
 
 async function bootstrap() {
+    console.log('>> JWT_SECRET en Nest:', process.env.JWT_SECRET);
     const app = await NestFactory.create(AppModule);
 
     if (process.env.NODE_ENV !== 'production') {
