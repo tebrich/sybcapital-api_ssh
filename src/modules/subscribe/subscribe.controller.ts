@@ -18,3 +18,4 @@ export class SubscribeController {
         return await this.subscribeService.subscribe(emailDto);
     }
 }
+

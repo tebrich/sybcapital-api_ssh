@@ -51,7 +51,8 @@ export class StockPricesService {
         }
     }
 
-    async getMartketsPrices(): Promise<StockMarketsModel> {
+    async getMarketsPrices(): Promise<StockMarketsModel> {
+       console.log('🔍 Entrando a getMarketsPrices()');
         try {
             let data: StockPricesModel[] = await this.cacheManager.get(this.quotesPrices);
 

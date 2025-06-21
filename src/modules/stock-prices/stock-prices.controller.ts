@@ -15,7 +15,7 @@ export class StockPricesController {
 
     @Get('/markets')
     async getMarketsPrices() {
-        return await this.stockPricesService.getMartketsPrices();
+        return await this.stockPricesService.getMarketsPrices();
     }
 
     @Get('/movers')
